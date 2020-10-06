@@ -1,0 +1,78 @@
+1<?xml version="1.0" encoding="utf-8"?>
+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+3    package="org.jssec.android.activity.privateactivity"
+4    android:versionCode="1"
+5    android:versionName="1.0" >
+6
+7    <uses-sdk
+8        android:minSdkVersion="15"
+8-->/home/boxhezi/Documents/FIT5003/Activity PrivateActivity/app/src/main/AndroidManifest.xml
+9        android:targetSdkVersion="29" />
+9-->/home/boxhezi/Documents/FIT5003/Activity PrivateActivity/app/src/main/AndroidManifest.xml
+10
+11    <uses-permission android:name="android.permission.SEND_SMS" />
+11-->/home/boxhezi/Documents/FIT5003/Activity PrivateActivity/app/src/main/AndroidManifest.xml:5:3-64
+11-->/home/boxhezi/Documents/FIT5003/Activity PrivateActivity/app/src/main/AndroidManifest.xml:5:20-62
+12    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+12-->/home/boxhezi/Documents/FIT5003/Activity PrivateActivity/app/src/main/AndroidManifest.xml:6:3-72
+12-->/home/boxhezi/Documents/FIT5003/Activity PrivateActivity/app/src/main/AndroidManifest.xml:6:20-70
+13
+14    <application
+14-->/home/boxhezi/Documents/FIT5003/Activity PrivateActivity/app/src/main/AndroidManifest.xml:9:3-38:17
+15        android:allowBackup="false"
+15-->/home/boxhezi/Documents/FIT5003/Activity PrivateActivity/app/src/main/AndroidManifest.xml:10:7-34
+16        android:debuggable="true"
+17        android:icon="@drawable/ic_launcher"
+17-->/home/boxhezi/Documents/FIT5003/Activity PrivateActivity/app/src/main/AndroidManifest.xml:11:7-43
+18        android:label="@string/app_name"
+18-->/home/boxhezi/Documents/FIT5003/Activity PrivateActivity/app/src/main/AndroidManifest.xml:12:7-39
+19        android:testOnly="true" >
+20        <activity
+20-->/home/boxhezi/Documents/FIT5003/Activity PrivateActivity/app/src/main/AndroidManifest.xml:15:5-25:16
+21            android:name="org.jssec.android.activity.privateactivity.PrivateActivity"
+21-->/home/boxhezi/Documents/FIT5003/Activity PrivateActivity/app/src/main/AndroidManifest.xml:16:9-40
+22            android:exported="true"
+22-->/home/boxhezi/Documents/FIT5003/Activity PrivateActivity/app/src/main/AndroidManifest.xml:18:9-32
+23            android:label="@string/app_name" >
+23-->/home/boxhezi/Documents/FIT5003/Activity PrivateActivity/app/src/main/AndroidManifest.xml:17:9-41
+24            <intent-filter>
+24-->/home/boxhezi/Documents/FIT5003/Activity PrivateActivity/app/src/main/AndroidManifest.xml:19:9-23:25
+25                <action android:name="android.intent.action.VIEW" />
+25-->/home/boxhezi/Documents/FIT5003/Activity PrivateActivity/app/src/main/AndroidManifest.xml:20:11-62
+25-->/home/boxhezi/Documents/FIT5003/Activity PrivateActivity/app/src/main/AndroidManifest.xml:20:19-60
+26                <action android:name="android.intent.action.SEND" />
+26-->/home/boxhezi/Documents/FIT5003/Activity PrivateActivity/app/src/main/AndroidManifest.xml:21:11-63
+26-->/home/boxhezi/Documents/FIT5003/Activity PrivateActivity/app/src/main/AndroidManifest.xml:21:19-60
+27
+28                <category android:name="android.intent.category.DEFAULT" />
+28-->/home/boxhezi/Documents/FIT5003/Activity PrivateActivity/app/src/main/AndroidManifest.xml:22:11-70
+28-->/home/boxhezi/Documents/FIT5003/Activity PrivateActivity/app/src/main/AndroidManifest.xml:22:21-67
+29            </intent-filter>
+30        </activity>
+31
+32        <!-- Public activity launched by launcher -->
+33        <activity
+33-->/home/boxhezi/Documents/FIT5003/Activity PrivateActivity/app/src/main/AndroidManifest.xml:28:5-37:16
+34            android:name="org.jssec.android.activity.privateactivity.PrivateUserActivity"
+34-->/home/boxhezi/Documents/FIT5003/Activity PrivateActivity/app/src/main/AndroidManifest.xml:29:9-44
+35            android:exported="true"
+35-->/home/boxhezi/Documents/FIT5003/Activity PrivateActivity/app/src/main/AndroidManifest.xml:31:9-32
+36            android:label="@string/app_name" >
+36-->/home/boxhezi/Documents/FIT5003/Activity PrivateActivity/app/src/main/AndroidManifest.xml:30:9-41
+37            <intent-filter>
+37-->/home/boxhezi/Documents/FIT5003/Activity PrivateActivity/app/src/main/AndroidManifest.xml:32:7-36:23
+38                <action android:name="android.intent.action.MAIN" />
+38-->/home/boxhezi/Documents/FIT5003/Activity PrivateActivity/app/src/main/AndroidManifest.xml:33:9-61
+38-->/home/boxhezi/Documents/FIT5003/Activity PrivateActivity/app/src/main/AndroidManifest.xml:33:17-58
+39                <action android:name="android.intent.action.ALL_APPS" />
+39-->/home/boxhezi/Documents/FIT5003/Activity PrivateActivity/app/src/main/AndroidManifest.xml:34:9-65
+39-->/home/boxhezi/Documents/FIT5003/Activity PrivateActivity/app/src/main/AndroidManifest.xml:34:17-62
+40
+41                <category android:name="android.intent.category.LAUNCHER" />
+41-->/home/boxhezi/Documents/FIT5003/Activity PrivateActivity/app/src/main/AndroidManifest.xml:35:9-69
+41-->/home/boxhezi/Documents/FIT5003/Activity PrivateActivity/app/src/main/AndroidManifest.xml:35:19-66
+42            </intent-filter>
+43        </activity>
+44    </application>
+45
+46</manifest>

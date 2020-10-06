@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">FIT5003 Assignment 1 Task 2 </string>
+	<string name="user_description">Start private activity when the button is tapped.</string>
+	<string name="use_activity">Enter Custom Keystore</string>
+	<string name="private_description">Please write the text you which to encrypt and digitally sign.</string>
+	<string name="return_result">Send Secure SMS</string>
+	<string name="password">Password</string>
+	<string name="hint_password">Input Keystore password</string>
+	<string name="display_password">Display password</string>
+	<string name="alert_password">Note: Please be careful about shoulder hacking when the password is displayed.</string>
+	<string name="hidden_input">Please write the text you which to digitally sign</string>
+	<string name="button_val">Press to continue</string>
+
+</resources>

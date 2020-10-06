@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical"
+    android:padding="5dp" >
+
+    <EditText
+        android:id="@+id/editText2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="textPersonName"
+        android:hint="choose key alias" />
+
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="@string/private_description" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="344dp"
+        android:orientation="vertical">
+
+        <EditText
+            android:id="@+id/sms_entr"
+            android:layout_width="match_parent"
+            android:layout_height="133dp"
+            android:ems="10"
+            android:gravity="start|top"
+            android:inputType="textMultiLine" />
+
+        <EditText
+            android:id="@+id/sms_tel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:inputType="textPersonName"
+            android:hint="telephone number" />
+
+        <TextView
+            android:id="@+id/textView3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Choose the keystore key aliases/users to secure your sms" />
+
+        <TextView
+            android:id="@+id/alias_text"
+            android:layout_width="match_parent"
+            android:layout_height="193dp"
+            android:autoText="false"
+            android:fadeScrollbars="false"
+            android:scrollbarThumbVertical="@android:drawable/btn_default"
+            android:scrollbars="vertical"
+            android:visibility="visible" />
+
+    </LinearLayout>
+
+    <Button
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:onClick="onReturnResultClick"
+        android:text="@string/return_result" />
+
+</LinearLayout>

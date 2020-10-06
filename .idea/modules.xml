@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Activity_PrivateActivity.iml" filepath="$PROJECT_DIR$/.idea/modules/Activity_PrivateActivity.iml" group="Activity_PrivateActivity" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/app.iml" group="Activity PrivateActivity/app" />
+    </modules>
+  </component>
+</project>

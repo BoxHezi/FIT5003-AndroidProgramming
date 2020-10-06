@@ -1,0 +1,4 @@
+#Tue Oct 06 14:27:54 AEDT 2020
+base.0=/home/boxhezi/Documents/FIT5003/Activity PrivateActivity/app/build/intermediates/dex/debug/mergeDexDebug/classes.dex
+path.0=classes.dex
+renamed.0=classes.dex
