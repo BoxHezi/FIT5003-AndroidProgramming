@@ -294,7 +294,8 @@ public class PrivateUserActivity extends Activity {
                 String msg = data.getStringExtra("msg");
                 Toast.makeText(this, String.format("Received result: \"%s\"", msg), Toast.LENGTH_LONG).show();
             } else if (resultCode == RESULT_OK) {
-                System.out.println("RESULT_OK");
+                String msg = data.getStringExtra("signature");
+                Toast.makeText(this, String.format("Received result: \"%s\"", msg), Toast.LENGTH_LONG).show();
             }
         }
 

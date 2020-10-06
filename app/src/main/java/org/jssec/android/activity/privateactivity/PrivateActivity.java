@@ -18,15 +18,19 @@ package org.jssec.android.activity.privateactivity;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.content.res.AssetManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 
 import android.os.Message;
+import android.telephony.SmsManager;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.w3c.dom.Text;
 
@@ -36,6 +40,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.Key;
@@ -54,6 +59,7 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.spec.AlgorithmParameterSpec;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.Enumeration;
 import java.util.List;
@@ -78,6 +84,8 @@ public class PrivateActivity extends Activity {
     private static final String initVector = "encryptionIntVec";
     private PrivateUserActivity.user_info param;
     private char[] keyStorePassword;
+
+    private String userAlias; // user alias in order to get current user's private key
 
 
     /// The following are methods that you may find of use:
@@ -116,6 +124,7 @@ public class PrivateActivity extends Activity {
         param = (PrivateUserActivity.user_info) intent.getSerializableExtra("CL_k");
 
         String process_ks_pass = param.getPassword_val() + param.getKeystore_user();
+        userAlias = param.getKeystore_user();
 
         /// HERE you need to add the appropriate code for validating the user and the user password (following the specifications of the assignment)
         // Also to open the appropriate keystore and to visualize all keystore information.
@@ -159,7 +168,7 @@ public class PrivateActivity extends Activity {
     }
 
     @TargetApi(Build.VERSION_CODES.O)
-    public void onReturnResultClick(View view) {
+    public void onReturnResultClick(View view) throws KeyStoreException, NoSuchPaddingException, InvalidKeyException, NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException, UnrecoverableKeyException, UnsupportedEncodingException, SignatureException {
 
 
         // Grab the EditText objects from phone screen
@@ -172,7 +181,33 @@ public class PrivateActivity extends Activity {
 
         //---------------------------------
 
-        finish();
+        // Get public key from chosen alias
+        Certificate certificate = my_ks.getCertificate(alias.getText().toString());
+        if (certificate == null) {
+            String msg = "Alias not exist, please check your selected alias";
+            Toast.makeText(this, String.format("Received result: \"%s\"", msg), Toast.LENGTH_LONG).show();
+        } else {
+            PublicKey pk = certificate.getPublicKey(); // get public key of input alias
+            String[] cipher = encrypt(pk, sms_text.getText().toString());
+
+            String smsCipher = cipher[0]; // encrypted sms
+            String skCipher = cipher[1]; // encrypted secret key
+
+            String smsContent = smsCipher + "\t" + skCipher; // concatenate encrypted sms and encrypted secret key
+
+            TextView textView = (TextView) findViewById(R.id.alias_text);
+            textView.append(smsContent);
+            sendSms(smsContent, sms_tel.getText().toString());
+
+            // Get user's private key
+            PrivateKey privateKey = (PrivateKey) my_ks.getKey(userAlias, keyStorePassword);
+            String signature = signMessage(smsContent, privateKey);
+
+            Intent intentResult = new Intent();
+            intentResult.putExtra("signature", signature);
+            setResult(RESULT_OK, intentResult);
+            finish();
+        }
     }
 
     /**
@@ -196,7 +231,7 @@ public class PrivateActivity extends Activity {
      * display keystore information in the text view area
      *
      * @throws KeyStoreException
-     * @throws IOException
+     * @throws IOException              when password for keystore is wrong
      * @throws CertificateException
      * @throws NoSuchAlgorithmException
      */
@@ -223,5 +258,101 @@ public class PrivateActivity extends Activity {
         }
 
         textView.setText(sb);
+    }
+
+    /**
+     * encrypt algorithm
+     *
+     * @param pk  public key which is used to encrypt symmetric key
+     * @param msg sms text to encrypt
+     * @return A string array contains encrypted sms and encrypted symmetric key
+     * @throws NoSuchAlgorithmException
+     * @throws NoSuchPaddingException
+     * @throws InvalidAlgorithmParameterException
+     * @throws InvalidKeyException
+     * @throws BadPaddingException
+     * @throws IllegalBlockSizeException
+     */
+    @TargetApi(Build.VERSION_CODES.O)
+    private String[] encrypt(PublicKey pk, String msg) throws NoSuchAlgorithmException, IllegalBlockSizeException, InvalidKeyException, BadPaddingException, InvalidAlgorithmParameterException, NoSuchPaddingException {
+
+        // Generate AES key
+        KeyGenerator kg = KeyGenerator.getInstance("AES");
+        kg.init(256); // define key size
+        SecretKey sk = kg.generateKey(); // generate secret key
+
+        String smsCipherBase64 = encryptSms(sk, msg);
+        String encryptedSKBase64 = encryptSecretKey(pk, sk);
+
+        return new String[]{smsCipherBase64, encryptedSKBase64};
+    }
+
+    /**
+     * encrypt sms text using AES CBC mode
+     * IV will be randomly generated within the method
+     *
+     * @param sk  secret key to encrypt sms
+     * @param sms sms to be encrypted
+     * @return encrypted sms in base64 format
+     * @throws NoSuchAlgorithmException
+     * @throws NoSuchPaddingException
+     * @throws InvalidAlgorithmParameterException
+     * @throws InvalidKeyException
+     * @throws BadPaddingException
+     * @throws IllegalBlockSizeException
+     */
+    @TargetApi(Build.VERSION_CODES.O)
+    private String encryptSms(SecretKey sk, String sms) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidAlgorithmParameterException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
+        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+        SecureRandom sr = new SecureRandom();
+        byte[] iv = new byte[cipher.getBlockSize()];
+        sr.nextBytes(iv);
+        IvParameterSpec ivParameterSpec = new IvParameterSpec(iv);
+        cipher.init(Cipher.ENCRYPT_MODE, sk, ivParameterSpec); // init cipher using encrypt, secret key and iv
+
+        byte[] smsCipher = cipher.doFinal(sms.getBytes()); // encrypt sms text
+        return new String(Base64.getEncoder().encode(smsCipher)); // convert to base64 and return
+    }
+
+    /**
+     * encrypt sk using pk
+     * @param pk public key use for encryption
+     * @param sk secret key need to be encrypted
+     * @return encrypted sk in base64 format string
+     * @throws NoSuchPaddingException
+     * @throws NoSuchAlgorithmException
+     * @throws InvalidKeyException
+     * @throws IllegalBlockSizeException
+     */
+    @TargetApi(Build.VERSION_CODES.O)
+    private String encryptSecretKey(PublicKey pk, SecretKey sk) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException {
+        Cipher cipher = Cipher.getInstance("RSA");
+        // using wrap mode because here is going to encrypt key. Cipher.unwrap() returns a Key
+        // reference: https://stackoverflow.com/questions/16586627/should-i-use-cipher-wrap-mode-or-cipher-encrypt-mode-to-encrypt-a-session-key
+        cipher.init(Cipher.WRAP_MODE, pk);
+
+        byte[] wrapperKey = cipher.wrap(sk);
+        return new String(Base64.getEncoder().encode(wrapperKey)); // convert to base64 and return
+    }
+
+    /**
+     * sending text message
+     * @param sms content need to be sent
+     * @param phoneNumber destination phone number
+     */
+    private void sendSms(String sms, String phoneNumber) {
+        SmsManager smsManager = SmsManager.getDefault();
+        smsManager.sendTextMessage(phoneNumber, null, sms, null, null);
+    }
+
+    @TargetApi(Build.VERSION_CODES.KITKAT)
+    private String signMessage(String msg, PrivateKey privateKey) throws NoSuchAlgorithmException, SignatureException, InvalidKeyException, UnsupportedEncodingException {
+        String msgSignature = "";
+        Signature signature = Signature.getInstance("SHA256withRSA");
+        signature.initSign(privateKey);
+        signature.update(msg.getBytes());
+
+        byte[] signed = signature.sign();
+        return new String(signed, StandardCharsets.UTF_8);
     }
 }
