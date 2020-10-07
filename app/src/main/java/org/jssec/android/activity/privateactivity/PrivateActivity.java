@@ -18,9 +18,14 @@ package org.jssec.android.activity.privateactivity;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.res.AssetManager;
+import android.hardware.SensorDirectChannel;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -203,6 +208,8 @@ public class PrivateActivity extends Activity {
             PrivateKey privateKey = (PrivateKey) my_ks.getKey(userAlias, keyStorePassword);
             String signature = signMessage(smsContent, privateKey);
 
+            System.out.println(signature);
+
             Intent intentResult = new Intent();
             intentResult.putExtra("signature", signature);
             setResult(RESULT_OK, intentResult);
@@ -316,6 +323,7 @@ public class PrivateActivity extends Activity {
 
     /**
      * encrypt sk using pk
+     *
      * @param pk public key use for encryption
      * @param sk secret key need to be encrypted
      * @return encrypted sk in base64 format string
@@ -337,12 +345,18 @@ public class PrivateActivity extends Activity {
 
     /**
      * sending text message
-     * @param sms content need to be sent
+     *
+     * @param sms         content need to be sent
      * @param phoneNumber destination phone number
      */
     private void sendSms(String sms, String phoneNumber) {
+        // the console log shows: Skipped n frames, The application may doing to much on its main thread
+        // Adding synchronized code block here to ensure that sms will be sent
+//        synchronized(this) {
         SmsManager smsManager = SmsManager.getDefault();
+        // TODO: covert sms to ArrayList, then use sendMultipartTextMessage
         smsManager.sendTextMessage(phoneNumber, null, sms, null, null);
+//        }
     }
 
     @TargetApi(Build.VERSION_CODES.KITKAT)
@@ -353,6 +367,8 @@ public class PrivateActivity extends Activity {
         signature.update(msg.getBytes());
 
         byte[] signed = signature.sign();
-        return new String(signed, StandardCharsets.UTF_8);
+        msgSignature = encodeHexString(signed);
+        return msgSignature;
+//        return new String(signed, StandardCharsets.UTF_8);
     }
 }

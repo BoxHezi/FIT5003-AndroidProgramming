@@ -30,6 +30,7 @@ import android.view.WindowManager;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
@@ -172,6 +173,8 @@ public class PrivateUserActivity extends Activity {
 
 
     /**
+
+//                TextView textView = (TextView) findViewById();
      * Process when check of password display option is changed.
      */
     private class OnPasswordDisplayCheckedChangeListener
