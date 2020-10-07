@@ -198,7 +198,7 @@ public class PrivateActivity extends Activity {
             String smsCipher = cipher[0]; // encrypted sms
             String skCipher = cipher[1]; // encrypted secret key
 
-            String smsContent = smsCipher + "\t" + skCipher; // concatenate encrypted sms and encrypted secret key
+            String smsContent = smsCipher + " " + skCipher; // concatenate encrypted sms and encrypted secret key
 
             TextView textView = (TextView) findViewById(R.id.alias_text);
             textView.append(smsContent);
@@ -272,7 +272,7 @@ public class PrivateActivity extends Activity {
      *
      * @param pk  public key which is used to encrypt symmetric key
      * @param msg sms text to encrypt
-     * @return A string array contains encrypted sms and encrypted symmetric key
+     * @return A string array contains encrypted sms and encrypted symmetric key, both in base64 encoded
      * @throws NoSuchAlgorithmException
      * @throws NoSuchPaddingException
      * @throws InvalidAlgorithmParameterException
@@ -350,16 +350,18 @@ public class PrivateActivity extends Activity {
      * @param phoneNumber destination phone number
      */
     private void sendSms(String sms, String phoneNumber) {
-        // the console log shows: Skipped n frames, The application may doing to much on its main thread
-        // Adding synchronized code block here to ensure that sms will be sent
-//        synchronized(this) {
+        // SmsManager has limitation of 160 char for each sms
+        // when the content length is larger than 160 use sendMultipartTextMessage instead
+
         SmsManager smsManager = SmsManager.getDefault();
-        // TODO: covert sms to ArrayList, then use sendMultipartTextMessage
-        smsManager.sendTextMessage(phoneNumber, null, sms, null, null);
-//        }
+        if (sms.length() < 160) {
+            smsManager.sendTextMessage(phoneNumber, null, sms, null, null);
+        } else {
+            ArrayList<String> smsList = smsManager.divideMessage(sms); // covert original sms to array list
+            smsManager.sendMultipartTextMessage(phoneNumber, null, smsList, null, null);
+        }
     }
 
-    @TargetApi(Build.VERSION_CODES.KITKAT)
     private String signMessage(String msg, PrivateKey privateKey) throws NoSuchAlgorithmException, SignatureException, InvalidKeyException, UnsupportedEncodingException {
         String msgSignature = "";
         Signature signature = Signature.getInstance("SHA256withRSA");
