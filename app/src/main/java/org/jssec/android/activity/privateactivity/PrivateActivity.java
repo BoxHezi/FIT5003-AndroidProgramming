@@ -134,12 +134,11 @@ public class PrivateActivity extends Activity {
         /// HERE you need to add the appropriate code for validating the user and the user password (following the specifications of the assignment)
         // Also to open the appropriate keystore and to visualize all keystore information.
 
-        byte[] hashResult = calculateHash(process_ks_pass); // calculate hash of password + username
-        hashResult = extractbytes(hashResult, 5);
-        String hashResultStr = encodeHexString(hashResult);
-        keyStorePassword = hashResultStr.toCharArray();
-
         try {
+            byte[] hashResult = calculateHash(process_ks_pass); // calculate hash of password + username
+            hashResult = extractbytes(hashResult, 5);
+            String hashResultStr = encodeHexString(hashResult);
+            keyStorePassword = hashResultStr.toCharArray();
             displayKeyStoreData(); // display keystore data
         } catch (KeyStoreException e) {
             e.printStackTrace();
@@ -223,15 +222,10 @@ public class PrivateActivity extends Activity {
      * @param strToHash string to hash
      * @return hashed string, null if reach no such algorithm exception
      */
-    private byte[] calculateHash(String strToHash) {
+    private byte[] calculateHash(String strToHash) throws NoSuchAlgorithmException {
         final String HASH_ALGORITHM = "SHA-256";
-        try {
-            MessageDigest md = MessageDigest.getInstance(HASH_ALGORITHM);
-            return md.digest(strToHash.getBytes());
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-            return null;
-        }
+        MessageDigest md = MessageDigest.getInstance(HASH_ALGORITHM);
+        return md.digest(strToHash.getBytes());
     }
 
     /**
@@ -363,14 +357,11 @@ public class PrivateActivity extends Activity {
     }
 
     private String signMessage(String msg, PrivateKey privateKey) throws NoSuchAlgorithmException, SignatureException, InvalidKeyException, UnsupportedEncodingException {
-        String msgSignature = "";
         Signature signature = Signature.getInstance("SHA256withRSA");
         signature.initSign(privateKey);
         signature.update(msg.getBytes());
 
         byte[] signed = signature.sign();
-        msgSignature = encodeHexString(signed);
-        return msgSignature;
-//        return new String(signed, StandardCharsets.UTF_8);
+        return encodeHexString(signed); // convert signature to string and return
     }
 }
