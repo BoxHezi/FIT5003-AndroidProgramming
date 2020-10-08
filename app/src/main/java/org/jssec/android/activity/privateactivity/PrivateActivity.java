@@ -172,7 +172,9 @@ public class PrivateActivity extends Activity {
     }
 
     @TargetApi(Build.VERSION_CODES.O)
-    public void onReturnResultClick(View view) throws KeyStoreException, NoSuchPaddingException, InvalidKeyException, NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException, UnrecoverableKeyException, UnsupportedEncodingException, SignatureException {
+    public void onReturnResultClick(View view) throws KeyStoreException, NoSuchPaddingException, InvalidKeyException,
+            NoSuchAlgorithmException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException,
+            UnrecoverableKeyException, SignatureException {
 
 
         // Grab the EditText objects from phone screen
@@ -187,7 +189,7 @@ public class PrivateActivity extends Activity {
 
         // Get public key from chosen alias
         Certificate certificate = my_ks.getCertificate(alias.getText().toString());
-        if (certificate == null) {
+        if (certificate == null) { // when alias chosen is not exist
             String msg = "Alias not exist, please check your selected alias";
             Toast.makeText(this, String.format("Received result: \"%s\"", msg), Toast.LENGTH_LONG).show();
         } else {
@@ -207,7 +209,7 @@ public class PrivateActivity extends Activity {
             PrivateKey privateKey = (PrivateKey) my_ks.getKey(userAlias, keyStorePassword);
             String signature = signMessage(smsContent, privateKey);
 
-            System.out.println(signature);
+//            System.out.println(signature);
 
             Intent intentResult = new Intent();
             intentResult.putExtra("signature", signature);
@@ -275,7 +277,8 @@ public class PrivateActivity extends Activity {
      * @throws IllegalBlockSizeException
      */
     @TargetApi(Build.VERSION_CODES.O)
-    private String[] encrypt(PublicKey pk, String msg) throws NoSuchAlgorithmException, IllegalBlockSizeException, InvalidKeyException, BadPaddingException, InvalidAlgorithmParameterException, NoSuchPaddingException {
+    private String[] encrypt(PublicKey pk, String msg) throws NoSuchAlgorithmException, IllegalBlockSizeException,
+            InvalidKeyException, BadPaddingException, InvalidAlgorithmParameterException, NoSuchPaddingException {
 
         // Generate AES key
         KeyGenerator kg = KeyGenerator.getInstance("AES");
@@ -303,9 +306,10 @@ public class PrivateActivity extends Activity {
      * @throws IllegalBlockSizeException
      */
     @TargetApi(Build.VERSION_CODES.O)
-    private String encryptSms(SecretKey sk, String sms) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidAlgorithmParameterException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
+    private String encryptSms(SecretKey sk, String sms) throws NoSuchAlgorithmException, NoSuchPaddingException,
+            InvalidAlgorithmParameterException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException {
         Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-        SecureRandom sr = new SecureRandom();
+        SecureRandom sr = new SecureRandom(); // create a new SecureRandom instance in order to randomly generate IV
         byte[] iv = new byte[cipher.getBlockSize()];
         sr.nextBytes(iv);
         IvParameterSpec ivParameterSpec = new IvParameterSpec(iv);
@@ -327,7 +331,8 @@ public class PrivateActivity extends Activity {
      * @throws IllegalBlockSizeException
      */
     @TargetApi(Build.VERSION_CODES.O)
-    private String encryptSecretKey(PublicKey pk, SecretKey sk) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException {
+    private String encryptSecretKey(PublicKey pk, SecretKey sk) throws NoSuchPaddingException, NoSuchAlgorithmException,
+            InvalidKeyException, IllegalBlockSizeException {
         Cipher cipher = Cipher.getInstance("RSA");
         // using wrap mode because here is going to encrypt key. Cipher.unwrap() returns a Key
         // reference: https://stackoverflow.com/questions/16586627/should-i-use-cipher-wrap-mode-or-cipher-encrypt-mode-to-encrypt-a-session-key
@@ -341,11 +346,14 @@ public class PrivateActivity extends Activity {
      * sending text message
      *
      * @param sms         content need to be sent
-     * @param phoneNumber destination phone number
+     * @param phoneNumber receiver's phone number
      */
     private void sendSms(String sms, String phoneNumber) {
         // SmsManager has limitation of 160 char for each sms
         // when the content length is larger than 160 use sendMultipartTextMessage instead
+        // reference: https://stackoverflow.com/questions/24234731/what-is-the-limited-of-chars-for-smsmanager
+        // https://stackoverflow.com/questions/1981430/sending-long-sms-messages
+        // https://stackoverflow.com/questions/6580675/how-to-send-the-sms-more-than-160-character
 
         SmsManager smsManager = SmsManager.getDefault();
         if (sms.length() < 160) {
@@ -356,7 +364,18 @@ public class PrivateActivity extends Activity {
         }
     }
 
-    private String signMessage(String msg, PrivateKey privateKey) throws NoSuchAlgorithmException, SignatureException, InvalidKeyException, UnsupportedEncodingException {
+    /**
+     * sign msg need to be sent
+     *
+     * @param msg        msg content will be sent
+     * @param privateKey private key to sign msg
+     * @return signature in hexadecimal format
+     * @throws NoSuchAlgorithmException
+     * @throws SignatureException
+     * @throws InvalidKeyException
+     */
+    private String signMessage(String msg, PrivateKey privateKey) throws NoSuchAlgorithmException, SignatureException,
+            InvalidKeyException {
         Signature signature = Signature.getInstance("SHA256withRSA");
         signature.initSign(privateKey);
         signature.update(msg.getBytes());
