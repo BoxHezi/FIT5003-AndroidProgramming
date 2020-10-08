@@ -199,8 +199,11 @@ public class PrivateActivity extends Activity {
             String smsCipher = cipher[0]; // encrypted sms
             String skCipher = cipher[1]; // encrypted secret key
 
-            String smsContent = smsCipher + " " + skCipher; // concatenate encrypted sms and encrypted secret key
+            // concatenate encrypted sms and encrypted secret key
+            // add a space as self-define flag to separate smsCipher and secure key cipher
+            String smsContent = smsCipher + " " + skCipher;
 
+            // show sms content below alias area
             TextView textView = (TextView) findViewById(R.id.alias_text);
             textView.append(smsContent);
             sendSms(smsContent, sms_tel.getText().toString());
@@ -208,8 +211,6 @@ public class PrivateActivity extends Activity {
             // Get user's private key
             PrivateKey privateKey = (PrivateKey) my_ks.getKey(userAlias, keyStorePassword);
             String signature = signMessage(smsContent, privateKey);
-
-//            System.out.println(signature);
 
             Intent intentResult = new Intent();
             intentResult.putExtra("signature", signature);
@@ -264,7 +265,7 @@ public class PrivateActivity extends Activity {
     }
 
     /**
-     * encrypt algorithm
+     * encrypt algorithm, symmetric key will be generated within this stage
      *
      * @param pk  public key which is used to encrypt symmetric key
      * @param msg sms text to encrypt
@@ -376,7 +377,8 @@ public class PrivateActivity extends Activity {
      */
     private String signMessage(String msg, PrivateKey privateKey) throws NoSuchAlgorithmException, SignatureException,
             InvalidKeyException {
-        Signature signature = Signature.getInstance("SHA256withRSA");
+        final String signatureAlgorithm = "SHA256withRSA";
+        Signature signature = Signature.getInstance(signatureAlgorithm);
         signature.initSign(privateKey);
         signature.update(msg.getBytes());
 
