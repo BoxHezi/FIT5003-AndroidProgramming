@@ -240,11 +240,12 @@ public class PrivateActivity extends Activity {
      * @throws NoSuchAlgorithmException
      */
     private void displayKeyStoreData() throws KeyStoreException, IOException, CertificateException, NoSuchAlgorithmException {
+        final String keyStoreFile = "fit5003_keystore.jks";
         my_ks = KeyStore.getInstance("BKS");
 
         // open keystore file
         AssetManager am = this.getAssets();
-        InputStream keyStoreData = am.open("fit5003_keystore.jks");
+        InputStream keyStoreData = am.open(keyStoreFile);
 
         my_ks.load(keyStoreData, keyStorePassword); // load keystore file data
 
